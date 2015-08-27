@@ -52,17 +52,17 @@ ostree_builtin_refs (int argc, char **argv, GCancellable *cancellable, GError **
   if (argc >= 2)
     refspec_prefix = argv[1];
 
+  if (!ostree_repo_list_refs (repo, refspec_prefix, &refs,
+                              cancellable, error))
+    goto out;
+
   /* Require a prefix when deleting to help avoid accidents. */
-  if (opt_delete && refspec_prefix == NULL)
+  if (opt_delete && g_hash_table_size (refs) > 1 && refspec_prefix == NULL)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "PREFIX is required when deleting refs");
       goto out;
     }
-
-  if (!ostree_repo_list_refs (repo, refspec_prefix, &refs,
-                              cancellable, error))
-    goto out;
 
   if (!opt_delete)
     {
